@@ -1,0 +1,25 @@
+# 这是 API 配置
+[api]
+api_key = "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" # 填入你的 api_key
+api_url = ""    # 访问哪个网站，默认指向 openai 的 chatgpt，可以不填
+
+# 这是机器人配置
+[bot]
+model = "gpt-3.5-turbo-0301"    # 使用 GPT3.5，更多模型请参考官网
+personalization = "你是一个 AI 助手，你需要尽可能详细的回答我的问题"  # 用于定义这个机器人，必填项
+max_tokens = 512
+temperature = 0.9
+top_p = 1
+frequency_penalty = 0.0
+presence_penalty = 0.6
+
+# 鉴权用，目前未实现
+[auth]
+auth_user = ""
+auth_password = ""
+
+# 地址/vpn
+[address]
+port = 8080 # 端口
+listen = "" # 监听地址，默认 127.0.0.1
+proxy = "" # vpn地址
