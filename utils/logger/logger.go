@@ -1,4 +1,4 @@
-package utils
+package logger
 
 import (
 	"log"
@@ -21,10 +21,10 @@ func Info(args ...interface{}) {
 	Logger.Println(args...)
 }
 
-// Danger 错误 为什么不命名为 error？避免和 error 类型重名
-func Danger(args ...interface{}) {
+// Errorf 错误
+func Errorf(format string, args ...interface{}) {
 	Logger.SetPrefix("[ERROR]")
-	Logger.Fatal(args...)
+	Logger.Fatalf(format, args...)
 }
 
 // Warning 警告

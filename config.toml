@@ -6,10 +6,10 @@ api_url = ""    # 访问哪个网站，默认指向 openai 的 chatgpt，可以�
 # 这是机器人配置
 [bot]
 model = "gpt-3.5-turbo-0301"    # 使用 GPT3.5，更多模型请参考官网
-personalization = "你是一个 AI 助手，你需要尽可能详细的回答我的问题"  # 用于定义这个机器人，必填项
+personalization = "你是一个 AI 助手，请需要尽可能详细的回答我的问题"  # 用于定义这个机器人，必填项
 max_tokens = 512
 temperature = 0.9
-top_p = 1
+top_p = 1.0
 frequency_penalty = 0.0
 presence_penalty = 0.6
 

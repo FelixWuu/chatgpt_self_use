@@ -1,11 +1,12 @@
 package config
 
 import (
-	"fmt"
 	"github.com/BurntSushi/toml"
-	""
+	"github.com/FelixWuu/chatgpt_self_use/utils/logger"
 	"os"
 )
+
+var config *Config
 
 type Config struct {
 	Api     `toml:"api"`
@@ -20,13 +21,13 @@ type Api struct {
 }
 
 type Bot struct {
-	Model            string `toml:"model"`
-	Personalization  string `toml:"personalization"`
-	MaxTokens        int    `toml:"max_tokens"`
-	Temperature      int    `toml:"temperature"`
-	TopP             int    `toml:"top_p"`
-	FrequencyPenalty int    `toml:"frequency_penalty"`
-	PresencePenalty  int    `toml:"presence_penalty"`
+	Model            string  `toml:"model"`
+	Personalization  string  `toml:"personalization"`
+	MaxTokens        int     `toml:"max_tokens"`
+	Temperature      int     `toml:"temperature"`
+	TopP             float32 `toml:"top_p"`
+	FrequencyPenalty float32 `toml:"frequency_penalty"`
+	PresencePenalty  float32 `toml:"presence_penalty"`
 }
 
 type Auth struct {
@@ -40,26 +41,17 @@ type Address struct {
 	Proxy  string `toml:"proxy"`
 }
 
-// LoadConfig 加载配置
-func LoadConfig() *Config {
-	path, _ := os.Getwd()
-	configPath := path + "../config.toml"
-
-	config := &Config{}
-	if _, err := toml.DecodeFile(configPath, config); err != nil {
-		fmt.Printf("Error decoding, error: %v\n", err)
-	}
-	return config
-}
-
 func Init() error {
-	config := &Config{}
+	config = &Config{}
 	path, _ := os.Getwd()
 	configPath := path + "../config.toml"
 	if _, err := toml.DecodeFile(configPath, config); err != nil {
-		log.
+		logger.Errorf("Init config failed, error: %v\n", err)
 		return err
 	}
+	return nil
 }
 
-
+func Inst() *Config {
+	return config
+}
