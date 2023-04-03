@@ -24,7 +24,7 @@ type Bot struct {
 	Model            string  `toml:"model"`
 	Personalization  string  `toml:"personalization"`
 	MaxTokens        int     `toml:"max_tokens"`
-	Temperature      int     `toml:"temperature"`
+	Temperature      float32 `toml:"temperature"`
 	TopP             float32 `toml:"top_p"`
 	FrequencyPenalty float32 `toml:"frequency_penalty"`
 	PresencePenalty  float32 `toml:"presence_penalty"`
@@ -41,15 +41,14 @@ type Address struct {
 	Proxy  string `toml:"proxy"`
 }
 
-func Init() error {
+func Init() {
 	config = &Config{}
 	path, _ := os.Getwd()
-	configPath := path + "../config.toml"
+	configPath := path + "./config.toml"
 	if _, err := toml.DecodeFile(configPath, config); err != nil {
 		logger.Errorf("Init config failed, error: %v\n", err)
-		return err
+		panic(err)
 	}
-	return nil
 }
 
 func Inst() *Config {

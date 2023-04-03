@@ -1,6 +1,6 @@
 # 这是 API 配置
 [api]
-api_key = "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" # 填入你的 api_key
+api_key = "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" # 填入你的 api_key
 api_url = ""    # 访问哪个网站，默认指向 openai 的 chatgpt，可以不填
 
 # 这是机器人配置
@@ -22,4 +22,4 @@ auth_password = ""
 [address]
 port = 8080 # 端口
 listen = "" # 监听地址，默认 127.0.0.1
-proxy = "" # vpn地址
+proxy = "http://127.0.0.1:7890" # vpn地址

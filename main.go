@@ -1,14 +1,14 @@
 package main
 
 import (
-	"github.com/alecthomas/kong"
+	"github.com/FelixWuu/chatgpt_self_use/config"
+	"github.com/FelixWuu/chatgpt_self_use/service"
 )
 
-var CLI struct {
-	Verbose bool   `help:"Verbose mode."`
-	Config  string `help:"Config file." name:"config" type:"file" default:"config.toml"`
+func init() {
+	config.Init()
 }
 
 func main() {
-	kong.Parse(&CLI)
+	service.StartWebService()
 }

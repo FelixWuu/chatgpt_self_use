@@ -20,5 +20,5 @@ func RegisterRoutes(router *gin.Engine) {
 	}
 
 	router.GET("/", rspCtrl.Index)
-	router.POST("/response", rspCtrl.Response)
+	router.POST("/completion", rspCtrl.Response)
 }

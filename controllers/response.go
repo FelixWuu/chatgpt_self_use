@@ -56,7 +56,7 @@ func (r *ResponseController) Response(ctx *gin.Context) {
 		return
 	}
 
-	logger.Info(request)
+	logger.Info("request: %v", request)
 	if len(request.Messages) == 0 {
 		r.GptRspJson(ctx, http.StatusBadRequest, "missing request information", nil)
 		return
@@ -73,12 +73,14 @@ func (r *ResponseController) Response(ctx *gin.Context) {
 	// 3. 允许自定义 BaseURL
 	apiURL := cfg.Api.ApiUrl
 	if apiURL != "" {
+		logger.Info("new API URL: %v", apiURL)
 		gptCfg.BaseURL = apiURL
 	}
 
 	// 4. 发送请求并接收 ChatGPT 的消息
-	client := r.createClient(&gptCfg, request, cfg.Bot.Personalization)
+	client := r.createClient(gptCfg, request, cfg.Bot.Personalization)
 	r.requestChatCompletion(ctx, request, client, cfg)
+	logger.Info("request finished")
 }
 
 // setProxyService 设置代理，防止被墙
@@ -154,11 +156,11 @@ func newDialContext(socks5 string) (dialContextFunc, error) {
 
 // createClient 创建 ChatGPT 客户端
 func (r *ResponseController) createClient(
-	gptCfg *goGpt.ClientConfig,
+	gptCfg goGpt.ClientConfig,
 	request goGpt.ChatCompletionRequest,
 	personalization string,
 ) *goGpt.Client {
-	client := goGpt.NewClientWithConfig(*gptCfg)
+	client := goGpt.NewClientWithConfig(gptCfg)
 	if request.Messages[0].Role != "system" {
 		newMessage := append([]goGpt.ChatCompletionMessage{
 			{Role: "system", Content: personalization},

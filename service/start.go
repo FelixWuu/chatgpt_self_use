@@ -23,7 +23,7 @@ func StartWebService() {
 	listen := cfg.Address.Listen
 	err := router.Run(fmt.Sprintf("%s:%d", listen, port))
 	if err != nil {
-		logger.Errorf("run chatgpt-self-use failed, error: %v", err)
+		logger.Errorf("run service failed, error: %v", err)
 	}
 }
 
