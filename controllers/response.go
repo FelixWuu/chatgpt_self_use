@@ -46,41 +46,56 @@ func (r *ResponseController) Index(ctx *gin.Context) {
 	})
 }
 
-// Response 响应体，ChatGPT 用于回复用户的消息
+// Response 响应体，ChatGPT 用于回复用户的消息，超时将退出
 func (r *ResponseController) Response(ctx *gin.Context) {
-	// 1. 封装发给 gpt 的请求，不允许发送空请求
-	var request goGpt.ChatCompletionRequest
-	err := ctx.BindJSON(&request)
-	if err != nil {
-		r.GptRspJson(ctx, http.StatusInternalServerError, err.Error(), nil)
-		return
-	}
-
-	logger.Info("request: %v", request)
-	if len(request.Messages) == 0 {
-		r.GptRspJson(ctx, http.StatusBadRequest, "missing request information", nil)
-		return
-	}
-
-	// 2. 设置代理，防墙
 	cfg := config.Inst()
-	gptCfg := goGpt.DefaultConfig(cfg.Api.ApiKey)
-	if err := setProxyService(cfg.Address.Proxy, &gptCfg); err != nil {
-		r.GptRspJson(ctx, http.StatusInternalServerError, err.Error(), nil)
+
+	ch := make(chan string, 1)
+	go func() {
+		// 1. 封装发给 gpt 的请求，不允许发送空请求
+		var request goGpt.ChatCompletionRequest
+		err := ctx.BindJSON(&request)
+		if err != nil {
+			r.GptRspJson(ctx, http.StatusInternalServerError, err.Error(), nil)
+			return
+		}
+
+		logger.Info("request: ", request)
+		if len(request.Messages) == 0 {
+			r.GptRspJson(ctx, http.StatusBadRequest, "missing request information", nil)
+			return
+		}
+
+		// 2. 设置代理，防墙
+		gptCfg := goGpt.DefaultConfig(cfg.Api.ApiKey)
+		if err := setProxyService(cfg.Address.Proxy, &gptCfg); err != nil {
+			r.GptRspJson(ctx, http.StatusInternalServerError, err.Error(), nil)
+			return
+		}
+
+		// 3. 允许自定义 BaseURL
+		apiURL := cfg.Api.ApiUrl
+		if apiURL != "" {
+			logger.Info("new API URL", apiURL)
+			gptCfg.BaseURL = apiURL
+		}
+
+		// 4. 发送请求并接收 ChatGPT 的消息
+		client := r.createClient(gptCfg, &request, cfg.Bot.Personalization)
+		r.requestChatCompletion(ctx, &request, client, cfg)
+		logger.Info("request finished")
+	}()
+
+	select {
+	case <-ch:
+		return
+	case <-time.After(time.Duration(cfg.Chat.Timeout) * time.Second):
+		r.GptRspJson(ctx, http.StatusOK, "Service Timeout", gin.H{
+			"reply":   "抱歉，由于未知问题，本次运行超时了！",
+			"message": "Sorry！Service Timeout",
+		})
 		return
 	}
-
-	// 3. 允许自定义 BaseURL
-	apiURL := cfg.Api.ApiUrl
-	if apiURL != "" {
-		logger.Info("new API URL: %v", apiURL)
-		gptCfg.BaseURL = apiURL
-	}
-
-	// 4. 发送请求并接收 ChatGPT 的消息
-	client := r.createClient(gptCfg, request, cfg.Bot.Personalization)
-	r.requestChatCompletion(ctx, request, client, cfg)
-	logger.Info("request finished")
 }
 
 // setProxyService 设置代理，防止被墙
@@ -157,7 +172,7 @@ func newDialContext(socks5 string) (dialContextFunc, error) {
 // createClient 创建 ChatGPT 客户端
 func (r *ResponseController) createClient(
 	gptCfg goGpt.ClientConfig,
-	request goGpt.ChatCompletionRequest,
+	request *goGpt.ChatCompletionRequest,
 	personalization string,
 ) *goGpt.Client {
 	client := goGpt.NewClientWithConfig(gptCfg)
@@ -173,7 +188,7 @@ func (r *ResponseController) createClient(
 
 func (r *ResponseController) requestChatCompletion(
 	ctx *gin.Context,
-	request goGpt.ChatCompletionRequest,
+	request *goGpt.ChatCompletionRequest,
 	client *goGpt.Client,
 	cfg *config.Config,
 ) {
@@ -181,7 +196,7 @@ func (r *ResponseController) requestChatCompletion(
 
 	if model == goGpt.GPT3Dot5Turbo || model == goGpt.GPT3Dot5Turbo0301 {
 		request.Model = model
-		rsp, err := client.CreateChatCompletion(ctx, request)
+		rsp, err := client.CreateChatCompletion(ctx, *request)
 		if err != nil {
 			r.GptRspJson(ctx, http.StatusInternalServerError, err.Error(), nil)
 			return

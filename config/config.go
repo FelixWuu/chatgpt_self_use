@@ -13,6 +13,7 @@ type Config struct {
 	Bot     `toml:"bot"`
 	Auth    `toml:"auth"`
 	Address `toml:"address"`
+	Chat    `toml:"chat"`
 }
 
 type Api struct {
@@ -41,10 +42,14 @@ type Address struct {
 	Proxy  string `toml:"proxy"`
 }
 
+type Chat struct {
+	Timeout int `toml:"timeout"`
+}
+
 func Init() {
 	config = &Config{}
 	path, _ := os.Getwd()
-	configPath := path + "./config.toml"
+	configPath := path + "/config.toml"
 	if _, err := toml.DecodeFile(configPath, config); err != nil {
 		logger.Errorf("Init config failed, error: %v\n", err)
 		panic(err)

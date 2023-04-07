@@ -22,7 +22,7 @@ auth_password = ""
 [address]
 port = 8080 # 端口
 listen = "" # 监听地址，默认 127.0.0.1
-proxy = "" # ip:port 即 vpn 地址，谨慎选择节点，以免被封号
+proxy = "http://ip:port" # ip:port 即 vpn 地址，谨慎选择节点，以免被封号
 
 # 聊天配置
 [chat]

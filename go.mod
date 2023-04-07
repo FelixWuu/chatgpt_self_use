@@ -4,7 +4,6 @@ go 1.17
 
 require (
 	github.com/BurntSushi/toml v1.2.1
-	github.com/alecthomas/kong v0.7.1
 	github.com/gin-gonic/gin v1.9.0
 	github.com/pkg/errors v0.9.1
 	github.com/sashabaranov/go-gpt3 v1.3.0
